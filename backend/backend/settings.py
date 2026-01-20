@@ -28,7 +28,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'rest_framework',
     'djoser',
-    'foodgram.apps.FoodgramConfig',
+    'recipes.apps.RecipesConfig',
     'api.apps.ApiConfig'
 ]
 
@@ -141,7 +141,7 @@ LENGTH_CONFIRMATION_CODE = 6
 ACCEPTABLE_SYMBOLS_CONFIRMATION_CODE = string.digits
 USERNAME_ACCEPTABLE_SYMBOLS = r'[\w.@+-]'
 
-AUTH_USER_MODEL = 'foodgram.User'
+AUTH_USER_MODEL = 'recipes.User'
 
 DJOSER = {
     'LOGIN_FIELD': 'email',

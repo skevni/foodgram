@@ -5,10 +5,10 @@ from djoser.serializers import UserSerializer
 from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer
 from djoser.serializers import UserCreateSerializer
-from foodgram.models import (
-    Tag, Ingredient, Recipe, RecipeIngredient, Favorite, ShoppingCart,
+from recipes.models import (
+    Follow, Tag, Ingredient, Recipe, RecipeIngredient, Favorite, ShoppingCart,
 )
-from foodgram.models import User
+from recipes.models import User
 
 
 class Base64ImageField(serializers.ImageField):
@@ -29,8 +29,6 @@ class TagSerializer(ModelSerializer):
     """Сериализатор для вывода тэгов."""
 
     class Meta:
-        """Мета-параметры сериализатора"""
-
         model = Tag
         fields = ('id', 'name', 'color', 'slug')
 
@@ -39,8 +37,6 @@ class IngredientSerializer(ModelSerializer):
     """Сериализатор для вывода ингредиентов."""
 
     class Meta:
-        """Мета-параметры сериализатора"""
-
         model = Ingredient
         fields = ('id', 'name', 'measurement_unit')
 
@@ -51,8 +47,6 @@ class CustomUserSerializer(UserCreateSerializer):
     is_subscribed = serializers.SerializerMethodField()
 
     class Meta:
-        """Мета-параметры сериализатора"""
-
         model = User
         fields = ('email', 'id', 'username', 'first_name', 'last_name',
                   'is_subscribed')
@@ -63,8 +57,8 @@ class CustomUserSerializer(UserCreateSerializer):
         user = self.context.get('request').user
         if user.is_anonymous:
             return False
-        # return Follow.objects.filter(user=user, author=obj.id).exists()
-        return True
+        return Follow.objects.filter(user=user, author=obj.id).exists()
+
 
 
 class CustomCreateUserSerializer(CustomUserSerializer):

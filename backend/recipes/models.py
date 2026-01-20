@@ -1,44 +1,17 @@
 from django.conf import settings
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import AbstractUser
 from django.core.validators import DecimalValidator, MinLengthValidator
 from django.db import models
+from django.forms import ValidationError
 
-from .constants import (MAX_LENGTH_EMAIL, MAX_LENGTH_FIRST_NAME,
-                        MAX_LENGTH_LAST_NAME, MAX_LENGTH_USERNAME)
+from .constants import (
+    MAX_LENGTH_EMAIL, MAX_LENGTH_FIRST_NAME, MAX_LENGTH_INGRIDIENT_NAME,
+    MAX_LENGTH_LAST_NAME, MAX_LENGTH_USERNAME)
 from .validators import validate_username, validate_slug
 
 
-class UserManager(BaseUserManager):
-    """
-    Кастомный менеджер пользователя создания пользователей
-    и суперпользователей без поля `is_superuser` в форме.
-    """
-    def create_user(self, username, email, password=None, **extra_fields):
-        if not email:
-            raise ValueError('Поле "email" обязательно.')
-        if not username:
-            raise ValueError('Поле "username" обязательно.')
-
-        email = self.normalize_email(email)
-        user = self.model(username=username, email=email, **extra_fields)
-        user.set_password(password)  # Хеширование пароля
-        user.save(using=self._db)
-        return user
-
-    def create_superuser(self, username, email, password=None, **extra_fields):
-        extra_fields.setdefault('is_staff', True)
-        extra_fields.setdefault('is_superuser', True)
-
-        if extra_fields.get('is_staff') is not True:
-            raise ValueError('Суперпользователь должен иметь is_staff=True.')
-        if extra_fields.get('is_superuser') is not True:
-            raise ValueError('Суперпользователь должен иметь is_superuser=True.')
-
-        return self.create_user(username, email, password, **extra_fields)
-
-
-class User(AbstractBaseUser):
-    """Кастомная модель пользователя с поддержкой подписок и аватарки."""
+class User(AbstractUser):
     username = models.CharField(
         'Логин',
         max_length=MAX_LENGTH_USERNAME,
@@ -57,82 +30,62 @@ class User(AbstractBaseUser):
     first_name = models.CharField(
         'Имя',
         max_length=MAX_LENGTH_FIRST_NAME,
-        blank=True,
         validators=[MinLengthValidator(1)],
     )
     last_name = models.CharField(
         'Фамилия',
         max_length=MAX_LENGTH_LAST_NAME,
-        blank=True,
         validators=[MinLengthValidator(1)],
     )
-    password = models.CharField('Пароль', max_length=128)
-    avatar = models.URLField('Аватар', blank=True, null=True)
-    following = models.ManyToManyField(
-        'self',
-        symmetrical=False,
-        blank=True,
-        related_name='followers',
-        help_text='Пользователи, на которых подписан этот пользователь.',
+    avatar = models.ImageField(
+        upload_to='users/',
+        blank=True, null=True, verbose_name='Аватар'
     )
 
-    is_active = models.BooleanField('Активен', default=True)
-    is_staff = models.BooleanField('Администратор', default=False)
-    is_superuser = models.BooleanField('Суперпользователь', default=False)
-    date_joined = models.DateTimeField('Дата регистрации', auto_now_add=True)
-
-    objects = UserManager()
-
-    USERNAME_FIELD = 'username'
-    REQUIRED_FIELDS = ['email', 'first_name', 'last_name']
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username', 'email', 'first_name', 'last_name']
 
     class Meta:
         ordering = ('username',)
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
-        constraints = [
-            models.UniqueConstraint(
-                fields=['username'],
-                name='unique_username'
-            ),
-            models.UniqueConstraint(
-                fields=['email'],
-                name='unique_email'
-            ),
-        ]
 
     def __str__(self):
         return self.username[:50]
 
-    def get_full_name(self):
-        full_name = f'{self.first_name} {self.last_name}'.strip()
-        return full_name if full_name else self.username
 
-    def get_short_name(self):
-        return self.first_name if self.first_name else self.username
+User = get_user_model()
 
-    def has_perm(self, perm, obj=None):
-        return self.is_superuser
 
-    def has_module_perms(self, app_label):
-        return self.is_superuser
+class UserRecipeRelationModel(models.Model):
+    """
+    Абстрактная модель.
+    Добавляет поля автора и рецепта, для связывающих их моделей.
+    """
 
-    # @property
-    # def is_superuser(self):
-    #     return self.is_superuser
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE,
+        verbose_name='Пользователь',
+        related_name='%(class)s'
+    )
+    recipe = models.ForeignKey(
+        'Recipe', on_delete=models.CASCADE,
+        verbose_name='Рецепт',
+        related_name='%(class)s_set'
+    )
 
-    # Эти свойства можно добавить позже, если будет введено поле `role`
-    # @property
-    # def is_admin(self):
-    #     return self.is_staff or self.is_superuser
-    #
-    # @property
-    # def is_moderator(self):
-    #     return False  # Реализовать при наличии role
-    #
-    # @property
-    # def is_user(self):
-    #     return not self.is_staff
+    class Meta:
+        abstract = True
+        ordering = ('recipe',)
+        constraints = (
+            models.UniqueConstraint(
+                fields=['user', 'recipe'],
+                name='unique_%(app_label)s_%(model_name)s_user_recipe'
+            ),
+        )
+
+    def __str__(self):
+        return f'{self.user} - {self.recipe}.'
 
 
 class Tag(models.Model):
@@ -156,7 +109,10 @@ class Tag(models.Model):
 
 class Ingredient(models.Model):
     """Ингредиент с единицей измерения."""
-    name = models.CharField('Название ингредиента', max_length=128)
+    name = models.CharField(
+        'Название ингредиента',
+        max_length=MAX_LENGTH_INGRIDIENT_NAME
+    )
     measurement_unit = models.CharField('Единица измерения', max_length=64)
 
     class Meta:
@@ -225,8 +181,6 @@ class RecipeIngredient(models.Model):
         'Количество',
         max_digits=10,
         decimal_places=2,
-        default=1,
-        validators=[DecimalValidator(max_digits=10, decimal_places=2)],
     )
 
     class Meta:
@@ -259,10 +213,15 @@ class Favorite(models.Model):
         related_name='favorites',
         verbose_name='Рецепт')
 
-    class Meta:
-        unique_together = (
-            ('user', 'recipe'),
-        )
+    class Meta:        
+        constraints = [
+            models.UniqueConstraint(
+                fields=('user', 'recipe'),
+                name='unique_recipe_ingredient'
+            )
+        ]
+        verbose_name = 'Избранное'
+        verbose_name_plural = 'Избранное'
 
     def __str__(self):
         return f'{self.user.username} {self.recipe.name}'
@@ -288,9 +247,41 @@ class ShoppingCart(models.Model):
         verbose_name_plural = 'Списки покупок'
         constraints = [
             models.UniqueConstraint(
-                fields=['user', 'recipe'], name='unique_shoppingcart'
+                fields=['user', 'recipe'],
+                name='unique_shoppingcart_user_recipe'
             )
         ]
 
     def __str__(self) -> str:
         return f'{self.user.username} {self.recipe.name}'
+
+
+class Subscription(models.Model):
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE,
+        verbose_name='Подписчик',
+        related_name='subscriptions'
+    )
+    author = models.ForeignKey(
+        User, on_delete=models.CASCADE,
+        verbose_name='Автор',
+        related_name='followers'
+    )
+
+    class Meta:
+        verbose_name = 'подписка'
+        verbose_name_plural = 'Подписки'
+        ordering = ('user',)
+        constraints = (
+            models.UniqueConstraint(
+                fields=('user', 'author'),
+                name='unique_user_author_subscription'
+            ),
+        )
+
+    def clean(self):
+        if self.user == self.author:
+            raise ValidationError('Нельзя подписаться на самого себя.')
+
+    def __str__(self):
+        return f'{self.user} подписан на {self.author}.'
