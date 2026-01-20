@@ -15,3 +15,10 @@ services:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
       - ../frontend/build:/usr/share/nginx/html/
       - ../docs/:/usr/share/nginx/html/api/docs/
+      - ../backend/collected_static:/static
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+networks:
+  default:
+    name: app-network
