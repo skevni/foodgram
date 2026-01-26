@@ -1,20 +1,17 @@
-from django.conf.urls.static import static
 from django.urls import include, path
+from rest_framework.routers import DefaultRouter
 
-from backend import settings
-# from rest_framework.routers import DefaultRouter
-
-# from backend.backend import settings
-
-# from . import views
+from . import views
 
 app_name = 'api'
 
-urlpatterns = [
-    path('', include('djoser.urls')),  # Работа с пользователями
-    path('auth/', include('djoser.urls.authtoken')),  # Работа с токенами
-]
+router = DefaultRouter()
 
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL,
-                          document_root=settings.MEDIA_ROOT)
+router.register('tags/', views.TagViewSet, basename="tags")
+router.register('users', views.UserViewSet, basename="users")
+# router.register('tags', views.TagViewSet, basename="tags")
+
+urlpatterns = [
+    path('auth/', include('djoser.urls.authtoken')),  # Работа с токенами
+    path("", include(router.urls)),
+]

@@ -1,17 +1,16 @@
 import os
 from pathlib import Path
-import string
 
 from dotenv import load_dotenv
 
 # Позже убрать переход в корень проекта
-if os.path.exists('../.env'):
-    load_dotenv('../.env')
-
+# if os.path.exists('../.env'):
+#     load_dotenv('../.env')
+load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.getenv('SECRET_KEY',
-    default='django-insecure-_ax_0nhr%h@)!!@n0k!4!jieu6)o&l0d6r6*#pp!dm^988i4qh')
+                       default='django-insecure-_ax_0nhr%h@)!!@n0k!4!jieu6)o&l0d6r6*#pp!dm^988i4qh')
 
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
@@ -135,10 +134,10 @@ CORS_ORIGIN_WHITELIST = [
 ]
 CSRF_TRUSTED_ORIGINS = ['https://foodgram.webhop.me']
 
+PAGINATION_PAGE_SIZE = 6
+USER_PAGINATION_PAGE_SIZE = 50
 SLUG_ACCEPTABLE_SYMBOLS = r'[-a-zA-Z0-9_]'
 USER_PROFILE_PATH = 'me'
-LENGTH_CONFIRMATION_CODE = 6
-ACCEPTABLE_SYMBOLS_CONFIRMATION_CODE = string.digits
 USERNAME_ACCEPTABLE_SYMBOLS = r'[\w.@+-]'
 
 AUTH_USER_MODEL = 'recipes.User'
@@ -149,9 +148,8 @@ DJOSER = {
     'PASSWORD_CHANGED_EMAIL_CONFIRMATION': False,
     'TOKEN_MODEL': 'rest_framework.authtoken.models.Token',
     'SERIALIZERS': {
-        'user': 'api.serializer.CustomUserSerializer',
-        'user_create': 'api.serializer.CustomCreateUserSerializer',
-        'current_user': 'api.serializer.CustomUserSerializer',
+        'user': 'api.serializer.UserReadSerializer',
+        'current_user': 'api.serializer.UserReadSerializer',
     },
     'PERMISSIONS': {
         'user': ['djoser.permissions.CurrentUserOrAdminOrReadOnly'],

@@ -1,18 +1,21 @@
 import base64
 
+from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
 from djoser.serializers import UserSerializer
 from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer
 from djoser.serializers import UserCreateSerializer
 from recipes.models import (
-    Follow, Tag, Ingredient, Recipe, RecipeIngredient, Favorite, ShoppingCart,
+    Favorite, Ingredient, Recipe, RecipeIngredient, ShoppingCart,
+    Subscription, Tag
 )
-from recipes.models import User
+
+User = get_user_model()
 
 
 class Base64ImageField(serializers.ImageField):
-    """Кастомное поле для кодирования изображения в base64."""
+    """Кодирование изображения в base64."""
 
     def to_internal_value(self, data):
         """Метод преобразования картинки"""
@@ -41,7 +44,7 @@ class IngredientSerializer(ModelSerializer):
         fields = ('id', 'name', 'measurement_unit')
 
 
-class CustomUserSerializer(UserCreateSerializer):
+class UserReadSerializer(UserCreateSerializer):
     """Сериализатор для модели User."""
 
     is_subscribed = serializers.SerializerMethodField()
@@ -57,11 +60,10 @@ class CustomUserSerializer(UserCreateSerializer):
         user = self.context.get('request').user
         if user.is_anonymous:
             return False
-        return Follow.objects.filter(user=user, author=obj.id).exists()
+        return Subscription.objects.filter(user=user, author=obj.id).exists()
 
 
-
-class CustomCreateUserSerializer(CustomUserSerializer):
+class CustomCreateUserSerializer(UserReadSerializer):
     """Сериализатор для создания пользователя
     без проверки на подписку """
 
@@ -242,8 +244,8 @@ class AdditionalForRecipeSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'image', 'cooking_time')
 
 
-class FollowSerializer(CustomUserSerializer):
-    """Сериализатор для модели Follow."""
+class SubscriptionSerializer(UserReadSerializer):
+    """Сериализатор для модели Subscription."""
 
     recipes = serializers.SerializerMethodField(
         read_only=True,
@@ -283,3 +285,13 @@ class AddFavoritesSerializer(serializers.ModelSerializer):
 
         model = Recipe
         fields = ('id', 'name', 'image', 'cooking_time')
+
+
+class AvatarSerializer(serializers.ModelSerializer):
+    """Сериализатор добавления или удаления аватара."""
+
+    avatar = Base64ImageField(allow_null=True)
+
+    class Meta:
+        model = User
+        fields = ['avatar', ]

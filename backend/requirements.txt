@@ -6,8 +6,8 @@ cffi==2.0.0
 charset-normalizer==3.4.4
 colorama==0.4.6
 cryptography==46.0.3
-defusedxml==0.7.1
 Django==6.0
+defusedxml==0.7.1
 django-cors-headers==4.9.0
 djangorestframework==3.16.1
 djangorestframework_simplejwt==5.5.1

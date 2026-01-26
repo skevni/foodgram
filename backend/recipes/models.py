@@ -90,7 +90,7 @@ class UserRecipeRelationModel(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=['user', 'recipe'],
-                name='unique_%(app_label)s_%(model_name)s_user_recipe'
+                name='unique_%(app_label)s_%(class)s_user_recipe'
             )
         ]
 
