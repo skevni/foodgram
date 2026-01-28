@@ -75,18 +75,17 @@ class UserRecipeRelationModel(models.Model):
         User,
         on_delete=models.CASCADE,
         verbose_name='Пользователь',
-        related_name='%(class)ss',
     )
     recipe = models.ForeignKey(
         'Recipe',
         on_delete=models.CASCADE,
         verbose_name='Рецепт',
-        related_name='%(class)s_set',
     )
 
     class Meta:
         abstract = True
-        ordering = ('recipe',)
+        default_related_name = '%(class)ss'
+        ordering = ('-recipe',)
         constraints = [
             models.UniqueConstraint(
                 fields=['user', 'recipe'],
@@ -167,6 +166,7 @@ class Recipe(models.Model):
         'Время приготовления, мин', default=1)
 
     class Meta:
+        default_related_name = 'recipes'
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
         ordering = ('-pub_date',)
@@ -180,13 +180,11 @@ class RecipeIngredient(models.Model):
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name='recipe_ingredients',
         verbose_name='Рецепт',
     )
     ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,
-        related_name='recipe_ingredients',
         verbose_name='Ингредиент',
     )
     amount = models.DecimalField(
@@ -199,6 +197,7 @@ class RecipeIngredient(models.Model):
     class Meta:
         verbose_name = 'Ингредиент в рецепте'
         verbose_name_plural = 'Ингредиенты в рецептах'
+        default_related_name = 'recipe_ingredients'
         constraints = [
             models.UniqueConstraint(
                 fields=['recipe', 'ingredient'],

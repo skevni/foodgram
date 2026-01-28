@@ -1,9 +1,10 @@
 from django_filters import (
-    BooleanFilter, FilterSet, ModelMultipleChoiceFilter, NumberFilter
+    BooleanFilter, CharFilter, FilterSet, ModelMultipleChoiceFilter,
+    NumberFilter
 )
 from django_filters.widgets import BooleanWidget
 
-from recipes.models import Tag, Recipe
+from cookbook.models import Ingredient, Tag, Recipe
 
 
 class RecipeFilter(FilterSet):
@@ -34,5 +35,15 @@ class RecipeFilter(FilterSet):
         if not user or user.is_anonymous:
             return queryset
         if value:
-            return queryset.filter(shoppingcart_set__user=user)
-        return queryset.exclude(shoppingcart_set__user=user)
+            return queryset.filter(shoppingcarts__user=user)
+        return queryset.exclude(shoppingcarts__user=user)
+
+
+class IngredientFilter(FilterSet):
+    name = CharFilter(
+        field_name='name', lookup_expr='istartswith'
+    )
+
+    class Meta:
+        model = Ingredient
+        fields = ('name',)

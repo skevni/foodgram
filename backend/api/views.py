@@ -13,17 +13,17 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
-from .filters import RecipeFilter
-from .pagination import UsersPagination
+from .filters import IngredientFilter, RecipeFilter
+from .pagination import Pagination, UsersPagination
 from .permissions import IsAuthorOrReadOnly
-from recipes.models import (
-    Favorite, Recipe, RecipeIngredient, Tag,
+from cookbook.models import (
+    Favorite, Ingredient, Recipe, RecipeIngredient, Tag,
     ShoppingCart, Subscription
 )
 from .serializer import (
-    AvatarSerializer, RecipeSerializer, RecipeWriteSerializer,
-    RecipeAdditionalSerializer, TagSerializer, UserReadSerializer,
-    UserRecipeSerializer
+    AvatarSerializer, IngredientSerializer, RecipeSerializer,
+    RecipeWriteSerializer, RecipeAdditionalSerializer, TagSerializer,
+    UserReadSerializer, UserRecipeSerializer
 )
 from .utils import prepare_shopping_list
 
@@ -201,7 +201,7 @@ class RecipeViewSet(ModelViewSet):
     def download_shopping_cart(self, request):
         user = request.user
         recipes = Recipe.objects.filter(
-            shoppingcartitems__user=user
+            shoppingcarts__user=user
         )
         ingredients = RecipeIngredient.objects.filter(
             recipe__in=recipes
@@ -218,3 +218,13 @@ class RecipeViewSet(ModelViewSet):
             as_attachment=True,
             filename=file_name
         )
+
+
+class IngredientViewSet(ReadOnlyModelViewSet):
+    """Вьюсет для работы с ингредиентами."""
+
+    queryset = Ingredient.objects.all()
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = IngredientFilter
+    pagination_class = None
+    serializer_class = IngredientSerializer

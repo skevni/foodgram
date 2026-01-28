@@ -28,7 +28,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'rest_framework',
     'djoser',
-    'recipes.apps.RecipesConfig',
+    'cookbook.apps.CookbookConfig',
     'api.apps.ApiConfig'
 ]
 
@@ -47,7 +47,7 @@ ROOT_URLCONF = 'backend.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -141,7 +141,7 @@ SLUG_ACCEPTABLE_SYMBOLS = r'[-a-zA-Z0-9_]'
 USER_PROFILE_PATH = 'me'
 USERNAME_ACCEPTABLE_SYMBOLS = r'[\w.@+-]'
 
-AUTH_USER_MODEL = 'recipes.User'
+AUTH_USER_MODEL = 'cookbook.User'
 
 DJOSER = {
     'LOGIN_FIELD': 'email',

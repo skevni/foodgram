@@ -7,7 +7,7 @@ from django.db import transaction
 from django.utils.text import slugify
 from pytils.translit import translify
 
-from recipes.models import Tag, Ingredient
+from cookbook.models import Tag, Ingredient
 
 
 class Command(BaseCommand):
