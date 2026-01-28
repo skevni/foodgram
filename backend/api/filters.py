@@ -34,5 +34,5 @@ class RecipeFilter(FilterSet):
         if not user or user.is_anonymous:
             return queryset
         if value:
-            return queryset.filter(shoppingcarts__user=user)
-        return queryset.exclude(shoppingcarts__user=user)
+            return queryset.filter(shoppingcart_set__user=user)
+        return queryset.exclude(shoppingcart_set__user=user)
