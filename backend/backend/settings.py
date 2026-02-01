@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 
+from django.core.management.utils import get_random_secret_key
 from dotenv import load_dotenv
 
 # Позже убрать переход в корень проекта
@@ -9,13 +10,11 @@ from dotenv import load_dotenv
 load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.getenv('SECRET_KEY',
-                       default='django-insecure-_ax_0nhr%h@)!!@n0k!4!jieu6)o&l0d6r6*#pp!dm^988i4qh')
+SECRET_KEY = os.getenv('SECRET_KEY', default=get_random_secret_key())
 
-DEBUG = os.getenv('DEBUG', 'False') == 'True'
+DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 
-ALLOWED_HOSTS = ['*']
-# ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost, 127.0.0.1').split(', ')
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -25,8 +24,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_filters',
-    'rest_framework.authtoken',
     'rest_framework',
+    'rest_framework.authtoken',
     'djoser',
     'cookbook.apps.CookbookConfig',
     'api.apps.ApiConfig'
@@ -135,12 +134,6 @@ CORS_ORIGIN_WHITELIST = [
 ]
 CSRF_TRUSTED_ORIGINS = ['https://foodgram.webhop.me']
 
-PAGINATION_PAGE_SIZE = 6
-USER_PAGINATION_PAGE_SIZE = 50
-SLUG_ACCEPTABLE_SYMBOLS = r'[-a-zA-Z0-9_]'
-USER_PROFILE_PATH = 'me'
-USERNAME_ACCEPTABLE_SYMBOLS = r'[\w.@+-]'
-
 AUTH_USER_MODEL = 'cookbook.User'
 
 DJOSER = {
@@ -157,3 +150,9 @@ DJOSER = {
         'user_list': ['rest_framework.permissions.AllowAny']
     },
 }
+
+PAGINATION_PAGE_SIZE = 6
+USER_PAGINATION_PAGE_SIZE = 50
+SLUG_ACCEPTABLE_SYMBOLS = r'[-a-zA-Z0-9_]'
+USER_PROFILE_PATH = 'me'
+USERNAME_ACCEPTABLE_SYMBOLS = r'[\w.@+-]'

@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.db import models
-from django.http import FileResponse
-from django.shortcuts import get_object_or_404
+from django.http import FileResponse, Http404
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
@@ -14,7 +14,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
 from .filters import IngredientFilter, RecipeFilter
-from .pagination import Pagination, UsersPagination
+from .pagination import UsersPagination
 from .permissions import IsAuthorOrReadOnly
 from cookbook.models import (
     Favorite, Ingredient, Recipe, RecipeIngredient, Tag,
@@ -189,7 +189,7 @@ class RecipeViewSet(ModelViewSet):
         """Получение короткой ссылки на рецепт."""
 
         if not self.queryset.filter(pk=pk).exists():
-            raise NotFound(f'Рецепт с id={pk} не найден!')
+            raise NotFound(f'Рецепт id={pk} не найден!')
         return Response({'short-link': request.build_absolute_uri(
             reverse('recipe-short-link', args=[pk])
         )})
