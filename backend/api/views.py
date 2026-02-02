@@ -211,7 +211,7 @@ class RecipeViewSet(ModelViewSet):
         ).order_by('ingredient__name')
 
         file_name = (f'shopping_list_{user.id}_'
-                     f'{timezone.now().strftime('%Y%m%d_%H%M%S')}.html')
+                     f'{timezone.now().strftime("%Y%m%d_%H%M%S")}.html')
         return FileResponse(
             prepare_shopping_list_html(list(ingredients), recipes),
             as_attachment=True,

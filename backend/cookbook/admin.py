@@ -72,9 +72,9 @@ class RecipeAdmin(admin.ModelAdmin):
                 '/>',
                 obj.image.url
             )
-        return "Изображение не загружено"
+        return 'Изображение не загружено'
 
-    image_preview.short_description = "Фото"
+    image_preview.short_description = 'Фото'
 
 
 @register(RecipeIngredient)
