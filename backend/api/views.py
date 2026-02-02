@@ -209,9 +209,8 @@ class RecipeViewSet(ModelViewSet):
         ).annotate(
             total_amount=models.Sum('amount')
         ).order_by('ingredient__name')
-
-        file_name = (f'shopping_list_{user.id}_'
-                     f'{timezone.now().strftime("%Y%m%d_%H%M%S")}.html')
+        current_time = timezone.now().strftime('%Y%m%d_%H%M%S')
+        file_name = (f'shopping_list_{user.id}_{current_time}.html')
         return FileResponse(
             prepare_shopping_list_html(list(ingredients), recipes),
             as_attachment=True,
