@@ -155,6 +155,9 @@
     USER                           # имя пользователя
     SSH_KEY                        # содержимое приватного SSH-ключа (cat ~/.ssh/id_rsa)
     SSH_PASSPHRASE                 # пароль для SSH-ключа
+    POSTGRES_USER                  # имя пользователя для подключения к БД
+    POSTGRES_PASSWORD              # пароль пользователя для подключения к БД
+    POSTGRES_DB                    # имя БД
 
     TELEGRAM_TO                    # ID вашего телеграм-аккаунта (можно узнать у @userinfobot, команда /start)
     TELEGRAM_TOKEN                 # токен вашего бота (получить токен можно у @BotFather, команда /token, имя бота)
