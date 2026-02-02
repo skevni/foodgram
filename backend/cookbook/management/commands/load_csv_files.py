@@ -1,6 +1,5 @@
 import csv
 import os
-import pdb
 
 from django.core.management.base import BaseCommand
 from django.db import transaction
@@ -65,7 +64,7 @@ class Command(BaseCommand):
                     name=row['name'].strip(),
                     measurement_unit=row['measurement_unit'].strip()
                 ))
-            
+
             with transaction.atomic():
                 Ingredient.objects.bulk_create(
                     ingredients, ignore_conflicts=False)
