@@ -2,16 +2,13 @@ import base64
 
 from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
-from djoser.serializers import UserSerializer
+from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer
-from djoser.serializers import UserCreateSerializer
 
 from cookbook.constants import MIN_COOKING_TIME
-from cookbook.models import (
-    Favorite, Ingredient, Recipe, RecipeIngredient, ShoppingCart,
-    Subscription, Tag
-)
+from cookbook.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
+                             ShoppingCart, Subscription, Tag)
 
 User = get_user_model()
 
@@ -221,17 +218,17 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         existing_ingredients = {ri.ingredient_id: ri
                                 for ri in instance.recipe_ingredients.all()}
         ingredient_ids = [item['id'] for item in ingredients_data]
-        
+
         # Удаляем ингредиенты, которых нет в запросе
         for ingredient_id, recipe_ingredient in existing_ingredients.items():
             if ingredient_id not in ingredient_ids:
                 recipe_ingredient.delete()
-        
+
         # Создаем или обновляем ингредиенты
         for ingredient_data in ingredients_data:
             ingredient_id = ingredient_data['id']
             amount = ingredient_data['amount']
-            
+
             if ingredient_id in existing_ingredients:
                 # Обновляем существующий ингредиент
                 existing_ingredients[ingredient_id].amount = amount
@@ -242,7 +239,7 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
                     ingredient_id=ingredient_id,
                     amount=amount
                 )
-                
+
         return instance
 
 

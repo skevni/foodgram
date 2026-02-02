@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.db import models
-from django.http import FileResponse, Http404
-from django.shortcuts import get_object_or_404, redirect
+from django.http import FileResponse
+from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
@@ -13,19 +13,17 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
+from cookbook.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
+                             ShoppingCart, Subscription, Tag)
+
 from .filters import IngredientFilter, RecipeFilter
 from .pagination import UsersPagination
 from .permissions import IsAuthorOrReadOnly
-from cookbook.models import (
-    Favorite, Ingredient, Recipe, RecipeIngredient, Tag,
-    ShoppingCart, Subscription
-)
-from .serializer import (
-    AvatarSerializer, IngredientSerializer, RecipeSerializer,
-    RecipeWriteSerializer, RecipeAdditionalSerializer, TagSerializer,
-    UserReadSerializer, UserRecipeSerializer
-)
-from .utils import prepare_shopping_list
+from .serializer import (AvatarSerializer, IngredientSerializer,
+                         RecipeAdditionalSerializer, RecipeSerializer,
+                         RecipeWriteSerializer, TagSerializer,
+                         UserReadSerializer, UserRecipeSerializer)
+from .utils import prepare_shopping_list_html
 
 User = get_user_model()
 
@@ -36,6 +34,7 @@ class RecipeUserViewSet(UserViewSet):
     queryset = User.objects.all()
     serializer_class = UserReadSerializer
     pagination_class = UsersPagination
+    permission_classes = (IsAuthorOrReadOnly,)
 
     @action(
         detail=False, methods=['get'], url_path='subscriptions',
@@ -212,9 +211,9 @@ class RecipeViewSet(ModelViewSet):
         ).order_by('ingredient__name')
 
         file_name = (f'shopping_list_{user.id}_'
-                     f'{timezone.now().strftime('%Y%m%d_%H%M%S')}.pdf')
+                     f'{timezone.now().strftime('%Y%m%d_%H%M%S')}.html')
         return FileResponse(
-            prepare_shopping_list(list(ingredients), recipes),
+            prepare_shopping_list_html(list(ingredients), recipes),
             as_attachment=True,
             filename=file_name
         )

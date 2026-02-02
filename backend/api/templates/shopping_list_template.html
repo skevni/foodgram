@@ -4,12 +4,6 @@
     <meta charset="UTF-8">
     <title>Список необходимых ингридиентов</title>
     <style>
-        @font-face {
-            font-family: 'DejaVu Sans';
-            src: url('/collected_static/fonts/DejaVuSans.ttf') format('truetype');
-            font-weight: normal;
-            font-style: normal;
-        }
         body {
             font-family: "DejaVu Sans", sans-serif;
             font-size: 12pt;
@@ -73,12 +67,12 @@
                 </tr>
             </thead>
             <tbody>
-                {% for data in ingredients %}
+                {% for data in total_ingredients %}
                 <tr>
                     <td>{{ forloop.counter }}</td>
-                    <td>{{ data.name|capfirst }}</td>
-                    <td>{{ data.amount|floatformat:"2" }}</td>
-                    <td>{{ data.unit }}</td>
+                    <td>{{ data.ingredient__name|capfirst }}</td>
+                    <td>{{ data.total_amount|floatformat:"2" }}</td>
+                    <td>{{ data.ingredient__measurement_unit }}</td>
                 </tr>
                 {% endfor %}
             </tbody>

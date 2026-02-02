@@ -1,21 +1,13 @@
-from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinLengthValidator
 from django.db import models
 from django.forms import ValidationError
 
-from .constants import (
-    MAX_LENGTH_EMAIL,
-    MAX_LENGTH_FIRST_NAME,
-    MAX_LENGTH_INGRIDIENT_NAME,
-    MAX_LENGTH_MEASUREMENT,
-    MAX_LENGTH_LAST_NAME,
-    MAX_LENGTH_RECIPE_NAME,
-    MAX_LENGTH_SLUG,
-    MAX_LENGTH_TAG,
-    MAX_LENGTH_USERNAME,
-)
-from .validators import validate_username, validate_slug
+from .constants import (MAX_LENGTH_EMAIL, MAX_LENGTH_FIRST_NAME,
+                        MAX_LENGTH_INGREDIENT_NAME, MAX_LENGTH_LAST_NAME,
+                        MAX_LENGTH_MEASUREMENT, MAX_LENGTH_RECIPE_NAME,
+                        MAX_LENGTH_SLUG, MAX_LENGTH_TAG, MAX_LENGTH_USERNAME)
+from .validators import validate_slug, validate_username
 
 
 class User(AbstractUser):
@@ -122,7 +114,7 @@ class Tag(models.Model):
 class Ingredient(models.Model):
     """Ингредиент с единицей измерения."""
     name = models.CharField('Название ингредиента',
-                            max_length=MAX_LENGTH_INGRIDIENT_NAME)
+                            max_length=MAX_LENGTH_INGREDIENT_NAME)
     measurement_unit = models.CharField('Единица измерения',
                                         max_length=MAX_LENGTH_MEASUREMENT)
 

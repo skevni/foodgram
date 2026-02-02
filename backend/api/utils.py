@@ -37,7 +37,7 @@ def link_callback(uri, rel):
     return path
 
 
-def prepare_shopping_list(ingredients, recipes):
+def prepare_shopping_list_pdf(ingredients, recipes):
     context = {
         'recipes': recipes,
         'total_ingredients': ingredients,
@@ -58,3 +58,13 @@ def prepare_shopping_list(ingredients, recipes):
         raise NotFound('Ошибка генерации PDF!')
     pdf_buffer.seek(0)
     return pdf_buffer
+
+
+def prepare_shopping_list_html(ingredients, recipes):
+    context = {
+        'recipes': recipes,
+        'total_ingredients': ingredients,
+        'date': timezone.now().strftime("%d.%m.%Y"),
+    }
+
+    return render_to_string('shopping_list_template.html', context)

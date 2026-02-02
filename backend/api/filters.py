@@ -1,10 +1,8 @@
-from django_filters import (
-    BooleanFilter, CharFilter, FilterSet, ModelMultipleChoiceFilter,
-    NumberFilter
-)
+from django_filters import (BooleanFilter, CharFilter, FilterSet,
+                            ModelMultipleChoiceFilter, NumberFilter)
 from django_filters.widgets import BooleanWidget
 
-from cookbook.models import Ingredient, Tag, Recipe
+from cookbook.models import Ingredient, Recipe, Tag
 
 
 class RecipeFilter(FilterSet):

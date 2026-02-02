@@ -1,10 +1,12 @@
+from django import forms
 from django.contrib import admin
 from django.contrib.admin.decorators import register
 from django.contrib.auth.models import Group
+from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 
-from .models import (
-    Favorite, Ingredient, Recipe, RecipeIngredient, ShoppingCart, Tag, User
-)
+from .models import (Favorite, Ingredient, Recipe, RecipeIngredient,
+                     ShoppingCart, Tag, User)
 
 admin.site.unregister(Group)
 
@@ -36,13 +38,43 @@ class IngredientAdmin(admin.ModelAdmin):
     list_filter = ('name', 'measurement_unit')
 
 
+class RecipeAdminForm(forms.ModelForm):
+    class Meta:
+        model = Recipe
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance.pk and self.instance.image:
+            self.fields['image'].help_text = mark_safe(
+                '<br>' + format_html(
+                    '<img src="{}" style="max-height: 100px; max-width: 100px;'
+                    ' border-radius: 8px; border: 1px solid #ddd; margin-top: '
+                    ' 10px;" />',
+                    self.instance.image.url
+                )
+            )
+
+
 @register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'name', 'text', 'author', 'pub_date')
+    list_display = ('pk', 'name', 'text', 'author', 'pub_date',
+                    'image_preview',)
     search_fields = ('name', 'author__username')
     list_filter = ('tags', 'author', 'pub_date')
     filter_horizontal = ('tags',)
     inlines = (RecipeIngredientInline,)
+
+    def image_preview(self, obj):
+        if obj.image:
+            return format_html(
+                '<img src="{}" style="max-height: 100px; max-width: 100px;" '
+                '/>',
+                obj.image.url
+            )
+        return "Изображение не загружено"
+
+    image_preview.short_description = "Фото"
 
 
 @register(RecipeIngredient)
