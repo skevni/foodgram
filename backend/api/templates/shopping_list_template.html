@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Список необходимых ингридиентов</title>
+    <style>
+        body {
+            font-family: "DejaVu Sans", sans-serif;
+            font-size: 12pt;
+        }
+        h1 {
+            color: #d35400;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #2c3e50;
+            margin-top: 30px;
+        }
+        ul {
+            list-style-type: disc;
+            margin-left: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f9fa;
+            color: #34495e;
+        }
+        .footer {
+            margin-top: 50px;
+            font-size: 12px;
+            color: #7f8c8d;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Кулинарный отчёт</h1>
+
+    <h2>Список рецептов</h2>
+    <ul>
+        {% for recipe in recipes %}
+            <li><strong>{{ recipe.name }}</strong></li>
+        {% empty %}
+            <li>Рецепты не найдены.</li>
+        {% endfor %}
+    </ul>
+
+    <h2>Ингредиенты</h2>
+    {% if total_ingredients %}
+        <table>
+            <thead>
+                <tr>
+                    <th>№</th>
+                    <th>Ингредиент</th>
+                    <th>Общее количество</th>
+                    <th>Единица измерения</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for data in total_ingredients %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ data.ingredient__name|capfirst }}</td>
+                    <td>{{ data.total_amount|floatformat:"2" }}</td>
+                    <td>{{ data.ingredient__measurement_unit }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Нет доступных ингредиентов.</p>
+    {% endif %}
+
+    <div class="footer">
+        Сгенерировано: {{ date }} | Всего рецептов: {{ recipes|length }}
+    </div>
+</body>
+</html>
