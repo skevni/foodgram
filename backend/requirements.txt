@@ -52,4 +52,3 @@ tornado==6.5.4
 traitlets==5.14.3
 tzdata==2025.3
 urllib3==2.6.2
-xhtml2pdf==0.2.17
