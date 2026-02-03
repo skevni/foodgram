@@ -13,29 +13,16 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
-from cookbook.models import (
-    Favorite,
-    Ingredient,
-    Recipe,
-    RecipeIngredient,
-    ShoppingCart,
-    Subscription,
-    Tag,
-)
+from cookbook.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
+                             ShoppingCart, Subscription, Tag)
 
 from .filters import IngredientFilter, RecipeFilter
 from .pagination import UsersPagination
 from .permissions import IsAuthorOrReadOnly
-from .serializer import (
-    AvatarSerializer,
-    IngredientSerializer,
-    RecipeAdditionalSerializer,
-    RecipeSerializer,
-    RecipeWriteSerializer,
-    TagSerializer,
-    UserReadSerializer,
-    UserRecipeSerializer,
-)
+from .serializer import (AvatarSerializer, IngredientSerializer,
+                         RecipeAdditionalSerializer, RecipeSerializer,
+                         RecipeWriteSerializer, TagSerializer,
+                         UserReadSerializer, UserRecipeSerializer)
 from .utils import prepare_shopping_list_html
 
 User = get_user_model()

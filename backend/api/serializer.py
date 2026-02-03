@@ -7,15 +7,8 @@ from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer
 
 from cookbook.constants import MIN_COOKING_TIME
-from cookbook.models import (
-    Favorite,
-    Ingredient,
-    Recipe,
-    RecipeIngredient,
-    ShoppingCart,
-    Subscription,
-    Tag,
-)
+from cookbook.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
+                             ShoppingCart, Subscription, Tag)
 
 User = get_user_model()
 
@@ -260,7 +253,7 @@ class RecipeAdditionalSerializer(serializers.ModelSerializer):
 
 
 class UserRecipeSerializer(UserSerializer):
-    """Сериализатор для модели User, его подписок и рецептов."""
+    """Сериализатор для модели User, его по��писок и рецептов."""
 
     recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField(
