@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib import admin
 from django.contrib.admin.decorators import register
+from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import Group
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
@@ -18,11 +19,13 @@ class RecipeIngredientInline(admin.TabularInline):
 
 
 @register(User)
-class MyUserAdmin(admin.ModelAdmin):
+class AdminUser(UserAdmin):
     list_display = ('pk', 'username', 'email', 'first_name', 'last_name')
     search_fields = ('username', 'email', 'first_name', 'last_name')
-    list_filter = ('username', 'email', 'first_name', 'last_name')
 
+    @admin.display(description='ФИО')
+    def display_fullname(self, user):
+        return f'{user.first_name} {user.last_name}'
 
 @register(Tag)
 class TagAdmin(admin.ModelAdmin):
@@ -65,16 +68,16 @@ class RecipeAdmin(admin.ModelAdmin):
     filter_horizontal = ('tags',)
     inlines = (RecipeIngredientInline,)
 
-    def image_preview(self, obj):
-        if obj.image:
-            return format_html(
-                '<img src="{}" style="max-height: 100px; max-width: 100px;" '
-                '/>',
-                obj.image.url
+    @admin.display(description='Фото')
+    def image_preview(self, recipe):
+        if recipe.image:
+            return mark_safe(
+                (
+                    '<img src="{}" style="max-height: 100px; max-width: " '
+                    '100px; />'
+                ).format(recipe.image.url)
             )
         return 'Изображение не загружено'
-
-    image_preview.short_description = 'Фото'
 
 
 @register(RecipeIngredient)
@@ -84,15 +87,8 @@ class RecipeIngredientAdmin(admin.ModelAdmin):
     list_filter = ('recipe', 'ingredient')
 
 
-@register(Favorite)
-class FavoriteAdmin(admin.ModelAdmin):
+@register(Favorite, ShoppingCart)
+class FavoriteShoppingCartAdmin(admin.ModelAdmin):
     list_display = ('pk', 'user', 'recipe')
     search_fields = ('user__username', 'recipe__name')
-    list_filter = ('user', 'recipe')
-
-
-@register(ShoppingCart)
-class ShoppingCartAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'user', 'recipe')
-    search_fields = ('user__username', 'recipe_name')
     list_filter = ('user', 'recipe')

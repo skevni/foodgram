@@ -1,11 +1,14 @@
+import re
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404
+from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
+from requests import delete
 from rest_framework import filters, status
 from rest_framework.decorators import action
 from rest_framework.exceptions import NotFound, ValidationError
@@ -15,7 +18,6 @@ from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
 from cookbook.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
                              ShoppingCart, Subscription, Tag)
-
 from .filters import IngredientFilter, RecipeFilter
 from .pagination import UsersPagination
 from .permissions import IsAuthorOrReadOnly
@@ -23,7 +25,6 @@ from .serializer import (AvatarSerializer, IngredientSerializer,
                          RecipeAdditionalSerializer, RecipeSerializer,
                          RecipeWriteSerializer, TagSerializer,
                          UserReadSerializer, UserRecipeSerializer)
-from .utils import prepare_shopping_list_html
 
 User = get_user_model()
 
@@ -54,34 +55,31 @@ class RecipeUserViewSet(UserViewSet):
         permission_classes=(IsAuthenticated,)
     )
     def subscribe(self, request, pk=None):
-        author = get_object_or_404(User, pk=pk)
-        user = request.user
-        if request.method == 'POST':
-            if author == user:
-                return Response(
-                    {'detail': 'Нельзя подписаться на самого себя!'},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-            subscription, created = Subscription.objects.get_or_create(
-                user=user, author=author
-            )
-            if not created:
-                return Response(
-                    f'Вы уже подписаны на пользователя '
-                    f'{subscription.author.username}',
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-            data = self.get_serializer(
-                author, context={'request': request}).data
-            return Response(data, status=status.HTTP_201_CREATED)
+        if request.method != 'POST':
+            get_object_or_404(
+                Subscription, user=request.user, author__id=pk
+            ).delete()
 
-        deleted, _ = Subscription.objects.filter(
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+        user = request.user
+        author = get_object_or_404(User, pk=pk)
+        if author == user:
+            return ValidationError(
+                {'detail': 'Нельзя подписаться на самого себя!'}
+            )
+        _, created = Subscription.objects.get_or_create(
             user=user, author=author
-        ).delete()
-        if not deleted:
-            return Response({'detail': 'Вы не были подписаны'},
-                            status.HTTP_400_BAD_REQUEST)
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        )
+        if not created:
+            return ValidationError(
+                f'Вы уже подписаны на пользователя '
+                f'{author.username}'
+            )
+        return Response(
+            self.get_serializer(author, context={'request': request}).data,
+            status=status.HTTP_201_CREATED
+        )
 
     @action(
         detail=False, methods=['put', 'delete'], url_path='me/avatar',
@@ -89,17 +87,16 @@ class RecipeUserViewSet(UserViewSet):
     )
     def avatar(self, request, *args, **kwargs):
         """Добавление или удаление аватара текущего пользователя."""
-        user = request.user
-        if request.method == 'PUT':
-            serializer = AvatarSerializer(
-                user, data=request.data, partial=True
-            )
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
+        if request.method != 'PUT':
+            request.user.avatar.delete(save=True)
+            return Response(status=status.HTTP_204_NO_CONTENT)
 
-        user.avatar.delete(save=True)
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        serializer = AvatarSerializer(
+            request.user, data=request.data, partial=True
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class TagViewSet(ReadOnlyModelViewSet):
@@ -212,7 +209,14 @@ class RecipeViewSet(ModelViewSet):
         current_time = timezone.now().strftime('%Y%m%d_%H%M%S')
         file_name = (f'shopping_list_{user.id}_{current_time}.html')
         return FileResponse(
-            prepare_shopping_list_html(list(ingredients), recipes),
+            render_to_string(
+                'shopping_list_template.html',
+                {
+                    'recipes': recipes,
+                    'total_ingredients': list(ingredients),
+                    'date': timezone.now().strftime('%d.%m.%Y')
+                }
+            ),
             as_attachment=True,
             filename=file_name
         )
