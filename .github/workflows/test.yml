@@ -41,8 +41,7 @@ jobs:
           DB_HOST: 127.0.0.1
           DB_PORT: 5432
         run: |
-          isort backend/
-          python -m flake8 backend/
+          flake8 backend/
           cd backend/
           python manage.py test
         

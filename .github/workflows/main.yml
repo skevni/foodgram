@@ -2,7 +2,7 @@ name: Main foodgram workflow
 
 on:
     workflow_run:
-        workflows: [Test kittygram workflow]
+        workflows: [Test foodgram workflow]
         types:
             - completed
         branches:
