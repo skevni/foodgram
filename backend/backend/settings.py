@@ -71,8 +71,14 @@ else:
             'NAME': os.getenv('POSTGRES_DB', 'django'),
             'USER': os.getenv('POSTGRES_USER', 'django'),
             'PASSWORD': os.getenv('POSTGRES_PASSWORD', ''),
-            'HOST': os.getenv('DB_HOST', 'localhost'),
-            'PORT': os.getenv('DB_PORT', 5432)
+            'default': {
+                'ENGINE': 'django.db.backends.postgresql',
+                'NAME': os.getenv('POSTGRES_DB', 'postgres'),
+                'USER': os.getenv('POSTGRES_USER', 'postgres_user'),
+                'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'postgres_password'),
+                'HOST': os.getenv('DB_HOST', 'db'),
+                'PORT': os.getenv('DB_PORT', '5432'),
+            }
         }
     }
 
@@ -106,7 +112,6 @@ STATIC_ROOT = BASE_DIR / 'collected_static'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-# MEDIA_ROOT = '/var/www/foodgram/media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -124,12 +129,10 @@ REST_FRAMEWORK = {
 
 }
 
-CORS_ORIGIN_WHITELIST = [
-    'http://localhost:8000',
-    'https://foodgram.webhop.me'
-    'http://localhost:80'
-]
-CSRF_TRUSTED_ORIGINS = ['https://foodgram.webhop.me']
+CORS_ORIGIN_WHITELIST = os.getenv(
+    'CORS_ORIGIN_WHITELIST', 'http://localhost:80, http://127.0.0.1:80').split(', ')
+CSRF_TRUSTED_ORIGINS = os.getenv(
+    'CORS_ORIGIN_WHITELIST', 'http://localhost').split(', ')
 
 AUTH_USER_MODEL = 'cookbook.User'
 
