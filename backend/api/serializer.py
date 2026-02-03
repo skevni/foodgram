@@ -253,7 +253,7 @@ class RecipeAdditionalSerializer(serializers.ModelSerializer):
 
 
 class UserRecipeSerializer(UserSerializer):
-    """Сериализатор для модели User, его подписок и рецептов."""
+    """Сериализатор для модели User, его по��писок и рецептов."""
 
     recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField(
