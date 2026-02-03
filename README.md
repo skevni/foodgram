@@ -147,4 +147,4 @@ _Примечание: Все примеры указаны для Linux_
 
 [Евгений Скляров](https://github.com/skevni)
 
-[Написать автору](mailto:skevni@yandex.ru)
+Написать автору [на email](mailto:skevni@yandex.ru), в [Telegram](https://t.me/sklyaroven)
