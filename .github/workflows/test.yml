@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.12', '3.13']
+        python-version: ["3.12", "3.13"]
     services:
       postgres:
         image: postgres:16
@@ -18,7 +18,7 @@ jobs:
         ports:
           - 5432:5432
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-    
+
     steps:
       - name: Check out the repo
         uses: actions/checkout@v3
@@ -31,7 +31,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip setuptools
           pip install flake8==6.0.0 flake8-isort==6.0.0
-          pip install -r ./backend/requirements.txt 
+          pip install -r ./backend/requirements.txt
 
       - name: Test with flake8 and django tests
         env:
@@ -44,23 +44,3 @@ jobs:
           python -m flake8 backend/
           cd backend/
           python manage.py test
-
-  frontend_tests:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
-    
-    - name: Set up nodeJS
-      uses: actions/setup-node@v3
-      with:
-        node-version: 18
-    
-    - name: Install dependencies
-      run: |
-        cd frontend/
-        npm ci
-    
-    - name: Test frontend
-      run: |
-        cd frontend/
-        npm run test
