@@ -16,7 +16,7 @@ services:
     image: skevni/foodgram_backend
     env_file: .env
     volumes:
-      - image_data:/var/www/foodgram/media
+      - image_data:/app/media
       - static:/backend_static/
     depends_on:
       - db
@@ -35,7 +35,7 @@ services:
       - 8000:80
     volumes:
       - static:/static
-      - image_data:/var/www/foodgram/media
+      - image_data:/media
     depends_on:
       - backend
       - frontend
