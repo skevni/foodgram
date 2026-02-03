@@ -124,7 +124,7 @@ REST_FRAMEWORK = {
 }
 
 CSRF_TRUSTED_ORIGINS = os.getenv(
-    'CORS_ORIGIN_WHITELIST', 'http://localhost,http://127.0.0.1').split(', ')
+    'CORS_ORIGIN_WHITELIST', 'http://localhost, http://127.0.0.1').split(', ')
 
 AUTH_USER_MODEL = 'cookbook.User'
 
