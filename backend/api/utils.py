@@ -1,37 +1,5 @@
-import base64
-import os
-
-from django.conf import settings
 from django.template.loader import render_to_string
 from django.utils import timezone
-
-
-def get_dejavu_base64():
-    """Возвращает base64 содержимое DejaVuSans.ttf"""
-    font_path = os.path.join(
-        settings.STATIC_ROOT, 'fonts', 'DejaVuSans.ttf')
-    if not os.path.exists(font_path):
-        raise FileNotFoundError(f'Шрифт не найден: {font_path}')
-
-    with open(font_path, 'rb') as f:
-        return base64.b64encode(f.read()).decode()
-
-
-def link_callback(uri, rel):
-    """
-    Преобразует статические/медиа URI в абсолютные пути на файловой системе.
-    """
-    if uri.startswith('static/'):
-        path = os.path.join(
-            settings.STATIC_ROOT or settings.STATICFILES_DIRS[0],
-            uri.replace('static/', '', 1))
-    elif uri.startswith('/static/'):
-        path = os.path.join(
-            settings.STATIC_ROOT or settings.STATICFILES_DIRS[0],
-            uri.lstrip('/static/'))
-    else:
-        path = os.path.join(settings.BASE_DIR, uri.lstrip('/'))
-    return path
 
 
 def prepare_shopping_list_html(ingredients, recipes):
