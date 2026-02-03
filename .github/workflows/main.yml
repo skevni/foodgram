@@ -10,7 +10,7 @@ on:
 
 jobs:
     build_backend_and_push_to_docker_hub:
-        name: Push Docker image to DockerHub
+        name: Push Backend Docker image to DockerHub
         runs-on: ubuntu-latest
         if: ${{ github.event.workflow_run.conclusion == 'success' }}
         steps:
@@ -34,7 +34,7 @@ jobs:
                   tags: ${{ secrets.DOCKER_USERNAME }}/foodgram_backend:latest
 
     build_frontend_and_push_to_docker_hub:
-        name: Push Docker image to DockerHub
+        name: Push Frontend Docker image to DockerHub
         runs-on: ubuntu-latest
         if: ${{ github.event.workflow_run.conclusion == 'success' }}
         steps:
@@ -57,7 +57,7 @@ jobs:
                   push: true
                   tags: ${{ secrets.DOCKER_USERNAME }}/foodgram_frontend:latest
     build_gateway_and_push_to_docker_hub:
-        name: Push Docker image to DockerHub
+        name: Push Gateway Docker image to DockerHub
         runs-on: ubuntu-latest
         if: ${{ github.event.workflow_run.conclusion == 'success' }}
         steps:
