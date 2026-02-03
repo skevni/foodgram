@@ -3,10 +3,17 @@ from django.core.validators import MinLengthValidator
 from django.db import models
 from django.forms import ValidationError
 
-from .constants import (MAX_LENGTH_EMAIL, MAX_LENGTH_FIRST_NAME,
-                        MAX_LENGTH_INGREDIENT_NAME, MAX_LENGTH_LAST_NAME,
-                        MAX_LENGTH_MEASUREMENT, MAX_LENGTH_RECIPE_NAME,
-                        MAX_LENGTH_SLUG, MAX_LENGTH_TAG, MAX_LENGTH_USERNAME)
+from .constants import (
+    MAX_LENGTH_EMAIL,
+    MAX_LENGTH_FIRST_NAME,
+    MAX_LENGTH_INGREDIENT_NAME,
+    MAX_LENGTH_LAST_NAME,
+    MAX_LENGTH_MEASUREMENT,
+    MAX_LENGTH_RECIPE_NAME,
+    MAX_LENGTH_SLUG,
+    MAX_LENGTH_TAG,
+    MAX_LENGTH_USERNAME,
+)
 from .validators import validate_slug, validate_username
 
 

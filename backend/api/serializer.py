@@ -7,8 +7,15 @@ from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer
 
 from cookbook.constants import MIN_COOKING_TIME
-from cookbook.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
-                             ShoppingCart, Subscription, Tag)
+from cookbook.models import (
+    Favorite,
+    Ingredient,
+    Recipe,
+    RecipeIngredient,
+    ShoppingCart,
+    Subscription,
+    Tag,
+)
 
 User = get_user_model()
 
