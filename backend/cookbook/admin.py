@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.admin.decorators import register
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import Group
-from django.db.models import Count, Q
+from django.db.models import Count
 from django.utils.safestring import mark_safe
 
 from .models import (Favorite, Ingredient, Recipe, RecipeIngredient,
