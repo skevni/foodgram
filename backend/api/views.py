@@ -1,4 +1,3 @@
-import re
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.http import FileResponse
@@ -8,7 +7,6 @@ from django.urls import reverse
 from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
-from requests import delete
 from rest_framework import filters, status
 from rest_framework.decorators import action
 from rest_framework.exceptions import NotFound, ValidationError
