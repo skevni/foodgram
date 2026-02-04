@@ -58,7 +58,8 @@ _Примечание: Все примеры указаны для Linux_
 6. Добавьте ингредиенты и теги в базу данных
 
     ```bash
-    sudo docker compose -f docker-compose.production.yml exec backend python manage.py load_csv_files
+    sudo docker compose -f docker-compose.production.yml exec backend python manage.py load_tags_json
+    sudo docker compose -f docker-compose.production.yml exec backend python manage.py load_ingredients_json
     ```
 
 ## Запуск проекта локально
@@ -107,7 +108,8 @@ _Примечание: Все примеры указаны для Linux_
 8. Загружаем ингредиенты и теги в базу данных
 
     ```bash
-    python3 manage.py load_csv_files
+    python3 manage.py load_tags_json
+    python3 manage.py load_ingredients_json
     ```
 
 9. Для входа в админ панель необходим администратор
