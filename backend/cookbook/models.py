@@ -1,13 +1,15 @@
 from django.contrib.auth.models import AbstractUser
-from django.core.validators import MinLengthValidator
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.forms import ValidationError
 
-from .constants import (MAX_LENGTH_EMAIL, MAX_LENGTH_FIRST_NAME,
-                        MAX_LENGTH_INGREDIENT_NAME, MAX_LENGTH_LAST_NAME,
-                        MAX_LENGTH_MEASUREMENT, MAX_LENGTH_RECIPE_NAME,
-                        MAX_LENGTH_SLUG, MAX_LENGTH_TAG, MAX_LENGTH_USERNAME)
-from .validators import validate_slug, validate_username
+from .constants import (
+    MAX_LENGTH_EMAIL, MAX_LENGTH_FIRST_NAME, MAX_LENGTH_INGREDIENT_NAME,
+    MAX_LENGTH_LAST_NAME, MAX_LENGTH_MEASUREMENT, MAX_LENGTH_RECIPE_NAME,
+    MAX_LENGTH_SLUG, MAX_LENGTH_TAG, MAX_LENGTH_USERNAME, MIN_COOKING_TIME,
+    MIN_INGREDIENTS_COUNT
+)
+from .validators import validate_username
 
 
 class User(AbstractUser):
@@ -25,19 +27,14 @@ class User(AbstractUser):
         'Адрес электронной почты',
         max_length=MAX_LENGTH_EMAIL,
         unique=True,
-        error_messages={
-            'unique': 'Пользователь с таким email уже существует.',
-        },
     )
     first_name = models.CharField(
         'Имя',
         max_length=MAX_LENGTH_FIRST_NAME,
-        validators=[MinLengthValidator(1)],
     )
     last_name = models.CharField(
         'Фамилия',
         max_length=MAX_LENGTH_LAST_NAME,
-        validators=[MinLengthValidator(1)],
     )
     avatar = models.ImageField(
         'Аватар',
@@ -55,7 +52,7 @@ class User(AbstractUser):
         verbose_name_plural = 'Пользователи'
 
     def __str__(self):
-        return self.username[:50] if self.username else self.email
+        return self.username[:50]
 
 
 class UserRecipeRelationModel(models.Model):
@@ -98,7 +95,6 @@ class Tag(models.Model):
         'Идентификатор',
         max_length=MAX_LENGTH_SLUG,
         unique=True,
-        validators=[validate_slug],
         help_text='Уникальный слаг для URL.',
     )
 
@@ -112,16 +108,22 @@ class Tag(models.Model):
 
 
 class Ingredient(models.Model):
-    """Ингредиент с единицей измерения."""
-    name = models.CharField('Название ингредиента',
+    """Продукт с единицей измерения."""
+    name = models.CharField('Название продукта',
                             max_length=MAX_LENGTH_INGREDIENT_NAME)
     measurement_unit = models.CharField('Единица измерения',
                                         max_length=MAX_LENGTH_MEASUREMENT)
 
     class Meta:
-        verbose_name = 'Ингредиент'
-        verbose_name_plural = 'Ингредиенты'
+        verbose_name = 'Продукт'
+        verbose_name_plural = 'Продукты'
         ordering = ('name',)
+        constraints = [
+            models.UniqueConstraint(
+                fields=['name', 'measurement_unit'],
+                name='unique_ingredient_name_unit',
+            ),
+        ]
 
     def __str__(self):
         return f'{self.name}, {self.measurement_unit}'
@@ -140,22 +142,23 @@ class Recipe(models.Model):
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='recipes',
         verbose_name='Автор',
     )
     pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
     ingredients = models.ManyToManyField(
         Ingredient,
         through='RecipeIngredient',
-        verbose_name='Ингредиенты',
+        verbose_name='Продукты',
     )
     tags = models.ManyToManyField(
         Tag,
-        related_name='recipes',
         verbose_name='Теги',
     )
     cooking_time = models.PositiveIntegerField(
-        'Время приготовления, мин', default=1)
+        'Время приготовления, мин',
+        default=MIN_COOKING_TIME,
+        validators=[MinValueValidator(MIN_COOKING_TIME)]
+    )
 
     class Meta:
         default_related_name = 'recipes'
@@ -168,7 +171,7 @@ class Recipe(models.Model):
 
 
 class RecipeIngredient(models.Model):
-    """Связь рецепта и ингредиента с количеством."""
+    """Связь рецепта и продукта с количеством."""
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
@@ -177,18 +180,17 @@ class RecipeIngredient(models.Model):
     ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,
-        verbose_name='Ингредиент',
+        verbose_name='Продукт',
     )
-    amount = models.DecimalField(
-        'Количество',
-        max_digits=10,
-        decimal_places=2,
-        default=1,
+    amount = models.PositiveSmallIntegerField(
+        verbose_name='Количество',
+        validators=[MinValueValidator(MIN_INGREDIENTS_COUNT)],
+        db_default=MIN_INGREDIENTS_COUNT
     )
 
     class Meta:
-        verbose_name = 'Ингредиент в рецепте'
-        verbose_name_plural = 'Ингредиенты в рецептах'
+        verbose_name = 'Продукт в рецепте'
+        verbose_name_plural = 'Продукты в рецептах'
         default_related_name = 'recipe_ingredients'
         constraints = [
             models.UniqueConstraint(
@@ -229,7 +231,7 @@ class Subscription(models.Model):
         User,
         on_delete=models.CASCADE,
         verbose_name='Автор',
-        related_name='followers',
+        related_name='authors',
     )
 
     class Meta:
@@ -246,10 +248,6 @@ class Subscription(models.Model):
     def clean(self):
         if self.user == self.author:
             raise ValidationError('Нельзя подписаться на самого себя.')
-
-    def save(self, *args, **kwargs):
-        self.full_clean()  # Гарантирует вызов clean() при сохранении
-        super().save(*args, **kwargs)
 
     def __str__(self):
         return f'{self.user} подписан на {self.author}.'

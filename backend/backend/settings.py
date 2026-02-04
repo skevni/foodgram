@@ -10,8 +10,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY', default=get_random_secret_key())
 
 DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
+PROFILE = os.getenv('PROFILE', 'dev').lower()
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost, 127.0.0.1').split(', ')
+if PROFILE == 'dev':
+    ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS_DEV', '*').split(', ')
+else:
+    ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS_PROD', 'localhost, 127.0.0.1').split(', ')
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -57,7 +61,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'backend.wsgi.application'
 
-if DEBUG:
+if PROFILE == 'dev':
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
@@ -143,8 +147,4 @@ DJOSER = {
     },
 }
 
-PAGINATION_PAGE_SIZE = 6
-USER_PAGINATION_PAGE_SIZE = 50
-SLUG_ACCEPTABLE_SYMBOLS = r'[-a-zA-Z0-9_]'
-USER_PROFILE_PATH = 'me'
 USERNAME_ACCEPTABLE_SYMBOLS = r'[\w.@+-]'
