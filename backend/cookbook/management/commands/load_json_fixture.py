@@ -8,6 +8,10 @@ from django.core.management.base import BaseCommand
 class LoadJsonFixtureCommand(BaseCommand):
     """Базовый класс для загрузки JSON-фикстур."""
 
+    def ensure_connection(self):
+        from django.db import connection
+        connection.ensure_connection()
+
     model_class = None
     fixture_file = None
     data_dir = Path.joinpath(settings.BASE_DIR, 'data')
@@ -19,6 +23,7 @@ class LoadJsonFixtureCommand(BaseCommand):
             return
 
         try:
+            self.ensure_connection()
             with open(Path.joinpath(
                 self.data_dir, self.fixture_file), 'r', encoding='utf-8'
             ) as file:
