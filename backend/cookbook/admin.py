@@ -209,8 +209,12 @@ class RecipeAdmin(admin.ModelAdmin):
     search_fields = (
         'name', 'author__username', 'tags__name', 'ingredients__name'
     )
-    list_filter = ('tags', 'author', CookingTimeFilter)
-    filter_horizontal = ('tags',)
+    list_filter = (
+        ('tags', admin.RelatedOnlyFieldListFilter),
+        ('author', admin.RelatedOnlyFieldListFilter),
+        CookingTimeFilter
+    )
+    autocomplete_fields = ('tags', 'ingredients')
     inlines = (RecipeIngredientInline,)
 
     @admin.display(description='В избранном')
@@ -244,11 +248,17 @@ class RecipeAdmin(admin.ModelAdmin):
 class RecipeIngredientAdmin(admin.ModelAdmin):
     list_display = ('pk', 'recipe', 'ingredient', 'amount')
     search_fields = ('recipe__name', 'ingredient__name')
-    list_filter = ('recipe', 'ingredient')
+    list_filter = (
+        ('recipe', admin.RelatedOnlyFieldListFilter),
+        ('ingredient', admin.RelatedOnlyFieldListFilter)
+    )
 
 
 @register(Favorite, ShoppingCart)
 class FavoriteShoppingCartAdmin(admin.ModelAdmin):
     list_display = ('pk', 'user', 'recipe')
     search_fields = ('user__username', 'recipe__name')
-    list_filter = ('user', 'recipe')
+    list_filter = (
+        ('user', admin.RelatedOnlyFieldListFilter),
+        ('recipe', admin.RelatedOnlyFieldListFilter)
+    )
