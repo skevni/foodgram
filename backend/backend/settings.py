@@ -12,7 +12,13 @@ SECRET_KEY = os.getenv('SECRET_KEY', default=get_random_secret_key())
 DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 PROFILE = os.getenv('PROFILE', 'dev').lower()
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS_PROD', 'localhost, 127.0.0.1').split(', ')
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost, 127.0.0.1').split(', ')
+
+# Доверенные прокси
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+USE_X_FORWARDED_HOST = True
+USE_X_FORWARDED_PORT = True
 
 INSTALLED_APPS = [
     'django.contrib.admin',
