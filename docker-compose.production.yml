@@ -27,7 +27,6 @@ services:
     command: cp -r /app/build/. /static/
     volumes:
       - static:/static
-    restart: unless-stopped
   gateway:
     image: skevni/foodgram_gateway
     env_file: .env
