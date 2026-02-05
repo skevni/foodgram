@@ -20,7 +20,7 @@ from .filters import IngredientFilter, RecipeFilter
 from .pagination import UsersPagination
 from .permissions import IsAuthorOrReadOnly
 from .serializer import (AvatarSerializer, IngredientSerializer,
-                         RecipeAdditionalSerializer, RecipeSerializer,
+                         RecipeProfileSerializer, RecipeSerializer,
                          RecipeWriteSerializer, TagSerializer,
                          UserReadSerializer, UserRecipeSerializer)
 
@@ -147,7 +147,7 @@ class RecipeViewSet(ModelViewSet):
                 f'{model._meta.verbose_name.lower()}!'
             )
         return Response(
-            RecipeAdditionalSerializer(
+            RecipeProfileSerializer(
                 recipe,
                 context={'request': request}
             ).data,

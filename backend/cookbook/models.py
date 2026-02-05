@@ -7,7 +7,7 @@ from .constants import (
     MAX_LENGTH_EMAIL, MAX_LENGTH_FIRST_NAME, MAX_LENGTH_INGREDIENT_NAME,
     MAX_LENGTH_LAST_NAME, MAX_LENGTH_MEASUREMENT, MAX_LENGTH_RECIPE_NAME,
     MAX_LENGTH_SLUG, MAX_LENGTH_TAG, MAX_LENGTH_USERNAME, MIN_COOKING_TIME,
-    MIN_INGREDIENTS_COUNT
+    MIN_INGREDIENTS_AMOUNT
 )
 from .validators import validate_username
 
@@ -182,10 +182,10 @@ class RecipeIngredient(models.Model):
         on_delete=models.CASCADE,
         verbose_name='Продукт',
     )
-    amount = models.PositiveSmallIntegerField(
+    amount = models.PositiveIntegerField(
         verbose_name='Количество',
-        validators=[MinValueValidator(MIN_INGREDIENTS_COUNT)],
-        db_default=MIN_INGREDIENTS_COUNT
+        validators=[MinValueValidator(MIN_INGREDIENTS_AMOUNT)],
+        db_default=MIN_INGREDIENTS_AMOUNT
     )
 
     class Meta:
