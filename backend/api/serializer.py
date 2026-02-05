@@ -1,7 +1,5 @@
-import base64
-
 from django.contrib.auth import get_user_model
-from django.core.files.base import ContentFile
+from drf_extra_fields import Base64ImageField
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer
@@ -11,20 +9,6 @@ from cookbook.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
                              ShoppingCart, Subscription, Tag)
 
 User = get_user_model()
-
-
-class Base64ImageField(serializers.ImageField):
-    """Кодирование изображения в base64."""
-
-    def to_internal_value(self, data):
-        """Метод преобразования картинки"""
-
-        if isinstance(data, str) and data.startswith('data:image'):
-            format, imgstr = data.split(';base64,')
-            ext = format.split('/')[-1]
-            data = ContentFile(base64.b64decode(imgstr), name='photo.' + ext)
-
-        return super().to_internal_value(data)
 
 
 class TagSerializer(ModelSerializer):
@@ -162,7 +146,7 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
     tags = serializers.PrimaryKeyRelatedField(
         many=True, queryset=Tag.objects.all()
     )
-    image = Base64ImageField(use_url=True)
+    image = Base64ImageField(allow_null=True)
     cooking_time = serializers.IntegerField(min_value=MIN_COOKING_TIME)
 
     class Meta:
@@ -280,7 +264,7 @@ class UserRecipeSerializer(UserSerializer):
 
 class AddFavoritesSerializer(serializers.ModelSerializer):
     """Сериализатор для добавления в избранное по модели Recipe."""
-    image = Base64ImageField()
+    image = Base64ImageField(allow_null=True)
 
     class Meta:
         """Мета-параметры сериализатора"""
