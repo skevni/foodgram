@@ -1,11 +1,7 @@
-from typing import Any
 from django.contrib import admin
 from django.contrib.admin.decorators import register
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import Group
-from django.db.models import Count
-from django.db.models.base import Model
-from django.http import HttpRequest
 from django.utils.safestring import mark_safe
 
 from .models import (Favorite, Ingredient, Recipe, RecipeIngredient,
@@ -141,58 +137,67 @@ class IngredientAdmin(CountMixin, admin.ModelAdmin):
 
 class CookingTimeFilter(admin.SimpleListFilter):
     title = 'Время готовки'
-    parameter_name = 'cooking_time_range'
+    parameter_name = 'cooking_time'
 
-    def __init__(self, request, params, model, model_admin):
-        super().__init__(request, params, model, model_admin)
-        self.short_limit = None
-        self.medium_limit = None
-        self.time_range = {
-            'short': {'cooking_time__range': (0, self.short_limit)},
-            'medium': {
-                'cooking_time__range': (
-                    self.short_limit + 1, self.medium_limit
-                )
+    @staticmethod
+    def get_time_ranges(short_limit, medium_limit):
+        """
+        Возвращает диапазоны фильтрации по времени с текстовыми описаниями.
+        Можно использовать в lookups() и queryset().
+        """
+        return {
+            'short': {
+                'lookup': {'cooking_time__range': (1, short_limit)},
+                'verbose_name': f'до {short_limit} мин',
             },
-            'long': {'cooking_time__gt': self.medium_limit},
+            'medium': {
+                'lookup': {
+                    'cooking_time__range': (short_limit + 1, medium_limit)
+                },
+                'verbose_name': f'{short_limit + 1} – {medium_limit} мин',
+            },
+            'long': {
+                'lookup': {'cooking_time__gt': medium_limit},
+                'verbose_name': f'больше {medium_limit} мин',
+            }
         }
 
-    def lookups(self, request, model_admin):
-        queryset = model_admin.get_queryset(request)
-        times = sorted(set(queryset.values_list('cooking_time', flat=True)))
+    def _get_limits(self, recipes):
+        """Вычисляет границы."""
+        times = sorted(set(cook_time for cook_time in recipes.values_list(
+            'cooking_time', flat=True) if cook_time is not None)
+        )
         total = len(times)
+        if total >= 3:
+            return times[total // 3], times[2 * total // 3]
+        return (None, None)
 
-        # Требуется минимум 3 уникальных значения
-        if total < 3:
-            return None
-
-        self.short_limit = times[total // 3]
-        self.medium_limit = times[2 * total // 3]
-
-        # Подсчитываем количество
-        count1 = queryset.filter(cooking_time__lte=self.short_limit).count()
-        count2 = queryset.filter(
-            cooking_time__gt=self.short_limit,
-            cooking_time__lte=self.medium_limit
-        ).count()
-        count3 = queryset.filter(cooking_time__gt=self.medium_limit).count()
+    def lookups(self, request, model_admin):
+        recipes = model_admin.get_queryset(request)
+        short_limit, medium_limit = self._get_limits(recipes)
+        if short_limit is None or medium_limit is None:
+            return []
 
         return [
-            ('short', f'до {self.short_limit} мин ({count1})'),
             (
-                'medium', (
-                    f'{self.short_limit + 1}–{self.medium_limit} '
-                    f'мин ({count2})'
-                )
-            ),
-            ('long', f'больше {self.medium_limit} мин ({count3})'),
+                key,
+                f"{config['verbose_name']} ({recipes.filter(
+                    **config['lookup']
+                ).count()})"
+            )
+            for key, config in self.get_time_ranges(
+                short_limit, medium_limit
+            ).items()
         ]
 
     def queryset(self, request, recipes):
-        if self.value() in self.time_range:
-            return recipes.filter(self.time_range[self.value()])
+        if self.value() not in ['short', 'medium', 'long']:
+            return recipes
 
-        return recipes
+        short_limit, medium_limit = self._get_limits(recipes)
+        time_ranges = self.get_time_ranges(short_limit, medium_limit)
+
+        return recipes.filter(**time_ranges[self.value]['lookup'])
 
 
 @register(Recipe)
@@ -204,7 +209,7 @@ class RecipeAdmin(admin.ModelAdmin):
     search_fields = (
         'name', 'author__username', 'tags__name', 'ingredients__name'
     )
-    list_filter = ('tags', 'authors', CookingTimeFilter)
+    list_filter = ('tags', 'author', CookingTimeFilter)
     filter_horizontal = ('tags',)
     inlines = (RecipeIngredientInline,)
 

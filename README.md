@@ -69,8 +69,7 @@ _Примечание: Все примеры указаны для Linux_
 1. Склонируйте репозиторий на свой компьютер:
 
     ```bash
-    git clone https://github.com/skevni/foodgram.git
-    cd foodgram
+    git clone https://github.com/skevni/foodgram.git && cd foodgram
     ```
 
 2. Создайте виртуальное окружение:
