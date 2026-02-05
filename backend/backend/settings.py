@@ -1,4 +1,5 @@
 import os
+import re
 from pathlib import Path
 
 from django.core.management.utils import get_random_secret_key
@@ -12,7 +13,9 @@ SECRET_KEY = os.getenv('SECRET_KEY', default=get_random_secret_key())
 DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 PROFILE = os.getenv('PROFILE', 'dev').lower()
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+ALLOWED_HOSTS = re.split(r',\s*', os.getenv(
+    'ALLOWED_HOSTS', 'localhost,127.0.0.1')
+)
 
 # Доверенные прокси
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
@@ -130,8 +133,11 @@ REST_FRAMEWORK = {
 
 }
 
-CSRF_TRUSTED_ORIGINS = os.getenv(
-    'CSRF_TRUSTED_ORIGINS', 'http://localhost,http://127.0.0.1').split(',')
+CSRF_TRUSTED_ORIGINS = re.split(
+    r',\s*', os.getenv(
+        'CSRF_TRUSTED_ORIGINS', 'http://localhost,http://127.0.0.1'
+    )
+)
 
 AUTH_USER_MODEL = 'cookbook.User'
 
