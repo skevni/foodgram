@@ -31,8 +31,8 @@ class LoadJsonFixtureCommand(BaseCommand):
                     self.style.SUCCESS(
                         f'Выполнена загрузка фала {file.name}. '
                         f'{ngettext(
-                            'Загружена {count} запись',
-                            'Загружено {count} записи',
+                            "Загружена {count} запись",
+                            "Загружено {count} записи",
                             count
                         ).format(count=count)}.'
                     )
