@@ -24,6 +24,8 @@ class BaseHasFilter(admin.SimpleListFilter):
     def __init__(self, request, params, model, model_admin):
         self.title = f'Есть {self.filter_title}'
         self.parameter_name = f'has_{self.filter_param}'
+        # Без этой строки будет ошибка.
+        super().__init__(request, params, model, model_admin)
 
     def lookups(self, request, model_admin):
         return [
@@ -181,9 +183,9 @@ class CookingTimeFilter(admin.SimpleListFilter):
         return [
             (
                 key,
-                f"{config['verbose_name']} ({recipes.filter(
-                    **config['lookup']
-                ).count()})"
+                f'{config['verbose_name']} ({recipes.filter(
+                    **config["lookup"]
+                ).count()})'
             )
             for key, config in self.get_time_ranges(
                 short_limit, medium_limit
