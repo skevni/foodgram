@@ -12,7 +12,7 @@ class LoadJsonFixtureCommand(BaseCommand):
     model_class = None
     fixture_file = None
 
-    def pluralize_russian(count, forms):
+    def pluralize_russian(self, count, forms):
         """
         Возвращает правильную форму слова для русского языка.
 
