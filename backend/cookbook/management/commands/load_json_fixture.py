@@ -3,7 +3,6 @@ from pathlib import Path
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
-from django.utils.translation import ngettext
 
 
 class LoadJsonFixtureCommand(BaseCommand):
@@ -65,5 +64,3 @@ class LoadJsonFixtureCommand(BaseCommand):
             self.stdout.write(self.style.ERROR(
                 f'Файл {file.name}.\nОшибка: {e}')
             )
-
-    

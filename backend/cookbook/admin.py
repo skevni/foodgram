@@ -183,7 +183,7 @@ class CookingTimeFilter(admin.SimpleListFilter):
         return [
             (
                 key,
-                f'{config['verbose_name']} ({recipes.filter(
+                f'{config["verbose_name"]} ({recipes.filter(
                     **config["lookup"]
                 ).count()})'
             )
