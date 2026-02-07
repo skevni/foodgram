@@ -85,9 +85,6 @@ else:
             'PORT': os.getenv('DB_PORT', '5432'),
         }
     }
-print(f'db: {os.getenv('DB_HOST', 'none')}, '
-      f'port: {os.getenv('DB_PORT', 'none')}'
-      f'USER: {os.getenv('POSTGRES_USER', 'none')}')
 
 AUTH_PASSWORD_VALIDATORS = [
     {
