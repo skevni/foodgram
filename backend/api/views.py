@@ -52,16 +52,17 @@ class RecipeUserViewSet(UserViewSet):
         detail=True, methods=['post', 'delete'], url_path='subscribe',
         permission_classes=(IsAuthenticated,)
     )
-    def subscribe(self, request, pk=None):
+    def subscribe(self, request, *args, **kwargs):
+        author_id = self.kwargs['id']
         if request.method != 'POST':
             get_object_or_404(
-                Subscription, user=request.user, author__id=pk
+                Subscription, user=request.user, author__id=author_id
             ).delete()
 
             return Response(status=status.HTTP_204_NO_CONTENT)
 
         user = request.user
-        author = get_object_or_404(User, pk=pk)
+        author = get_object_or_404(User, pk=author_id)
         if author == user:
             return ValidationError(
                 {'detail': 'Нельзя подписаться на самого себя!'}
