@@ -210,6 +210,10 @@ class UserRecipeSerializer(UserSerializer):
             context={'request': request}
         ).data
 
+    def get_recipes_count(self, user):
+        """Метод для получения количества рецептов."""
+        return user.recipes.count()
+
 
 class AvatarSerializer(serializers.ModelSerializer):
     """Сериализатор добавления или удаления аватара."""
