@@ -183,9 +183,8 @@ class CookingTimeFilter(admin.SimpleListFilter):
         return [
             (
                 key,
-                f'{config["verbose_name"]} ({recipes.filter(
-                    **config["lookup"]
-                ).count()})'
+                f'{config["verbose_name"]} '
+                f'({recipes.filter(**config["lookup"]).count()})'
             )
             for key, config in self.get_time_ranges(
                 short_limit, medium_limit
