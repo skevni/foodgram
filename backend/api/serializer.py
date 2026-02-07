@@ -21,7 +21,7 @@ class TagSerializer(ModelSerializer):
         fields = ('id', 'name', 'slug')
 
 
-class IngredientSerializer():
+class IngredientSerializer(ModelSerializer):
     """Сериализатор для вывода ингредиентов."""
 
     class Meta:
