@@ -122,6 +122,7 @@ class AdminUser(CountMixin, UserAdmin):
     def follower_count(self, user):
         return user.authors.count()
 
+
 @register(Tag)
 class TagAdmin(CountMixin, admin.ModelAdmin):
     list_display = (*CountMixin.list_display, 'pk', 'name', 'slug')
